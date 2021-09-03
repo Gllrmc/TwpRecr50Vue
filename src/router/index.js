@@ -1,14 +1,61 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Login from '../components/Login.vue'
+import Rol from '../components/Rol.vue'
+import Usuario from '../components/Usuario.vue'
+import store from '../store'
+
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'home',
+    component: Home,
+    meta: {
+      administrador: true,
+      jefeadministracion: true,
+      liderproyecto:true, 
+      consultor: true,
+      asistadministracion: true,
+      dataentry: true
+    }
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login,
+    meta:{
+      libre: true
+    }
+  },
+  {
+    path: '/roles',
+    name: 'roles',
+    component: Rol,
+    meta: {
+      administrador: true,
+      jefeadministracion: true,
+      liderproyecto:true, 
+      consultor: true,
+      asistadministracion: true,
+      dataentry: true
+    }
+  },
+  {
+    path: '/usuarios',
+    name: 'usuarios',
+    component: Usuario,
+    meta: {
+      administrador: true,
+      jefeadministracion: true,
+      liderproyecto:true, 
+      consultor: true,
+      asistadministracion: true,
+      dataentry: true
+    }
   },
   {
     path: '/about',
@@ -25,5 +72,39 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.libre)) {
+      next();
+  } else if (store.state.usuario && store.state.usuario.rol == 'Administrador') {
+      if (to.matched.some(record => record.meta.administrador)) {
+          next();
+      }
+  } else if (store.state.usuario && store.state.usuario.rol == 'JefeAdministracion') {
+      if (to.matched.some(record => record.meta.jefeadministracion)) {
+          next();
+      }
+  } else if (store.state.usuario && store.state.usuario.rol == 'AsistAdministracion') {
+      if (to.matched.some(record => record.meta.asistadministracion)) {
+          next();
+      }
+  } else if (store.state.usuario && store.state.usuario.rol == 'Reclutador') {
+      if (to.matched.some(record => record.meta.liderproyecto)) {
+          next();
+      }
+    } else if (store.state.usuario && store.state.usuario.rol == 'Postulante') {
+      if (to.matched.some(record => record.meta.consultor)) {
+          next();
+      }
+  } else if (store.state.usuario && store.state.usuario.rol == 'Dataentry') {
+      if (to.matched.some(record => record.meta.dataentry)) {
+          next();
+      }
+  } else {
+      next({
+        name: 'login'
+    });
+  }
+});
 
 export default router
